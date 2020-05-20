@@ -10,7 +10,8 @@
   <!-- <h3 style="text-align: center;">Msgpack</h3> -->
   <textarea class="src" id="src"></textarea>
   <button onclick="msgpackDecode()">Msgpack Decode</button>
-  <button onclick="clearMsg()">Clear</button>
+  <button onclick="pasteFromClipboard()">Paste From Clipboard</button>
+  <button onclick="clearMsg()">Reset</button>
   <pre>
     <code id="dst" class="code json">
     </code>
@@ -89,6 +90,15 @@
     function clearMsg() {
       $('#src').val('')
       $('#dst').text('')
+      $('#src').focus()
+    }
+
+    function pasteFromClipboard() {
+      navigator.clipboard.readText().then(txt => {
+        $('#src').val(txt)
+        $('#src').focus()
+        msgpackDecode()
+      })
     }
   </script>
 </body>
