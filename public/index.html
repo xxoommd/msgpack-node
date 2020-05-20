@@ -31,7 +31,7 @@
       if (src.length == 0) return
       try {
         let dst = decodeHex(src)
-        $('#dst').text(JSON.stringify(dst, null, 4))
+        $('#dst').text(JSON.stringify(dst, null, 2))
         reloadHighlight()
       } catch (err) {
         $('#dst').text("decode failed: " + err.message)
@@ -51,14 +51,21 @@
       while (true) {
         let char = hexStr[i]
         if (char == "\\") {
-          let word = char
-          for (let j = 1; j <= 3; j++) {
+          if (hexStr[i + 1] === 'x') {
+            let word = char
+            for (let j = 1; j <= 3; j++) {
+              i++
+              word += hexStr[i]
+            }
+            word = word.replace('\\x', '0x')
+            arr.push(parseInt(word, 16))
             i++
-            word += hexStr[i]
+          } else {
+            char = hexStr[i + 1]
+            let b = encoder.encode(char) // Buffer.from(char)
+            arr.push(b[0])
+            i += 2
           }
-          word = word.replace('\\x', '0x')
-          arr.push(parseInt(word, 16))
-          i++
         } else {
           let b = encoder.encode(char) // Buffer.from(char)
           arr.push(b[0])
