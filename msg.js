@@ -6,14 +6,21 @@ function msgDecode(hexStr) {
     while (true) {
         let char = hexStr[i]
         if (char == "\\") {
-            let word = char
-            for (let j = 1; j <= 3; j++) {
+            if (hexStr[i + 1] === 'x' || hexStr[i + 1] === 'X') {
+                let word = char
+                for (let j = 1; j <= 3; j++) {
+                    i++
+                    word += hexStr[i]
+                }
+                word = word.replace('\\x', '0x')
+                arr.push(parseInt(word, 16))
                 i++
-                word += hexStr[i]
+            } else {
+                char = hexStr[i + 1]
+                let b = encoder.encode(char) // Buffer.from(char)
+                arr.push(b[0])
+                i += 2
             }
-            word = word.replace('\\x', '0x')
-            arr.push(parseInt(word, 16))
-            i++
         } else {
             let b = Buffer.from(char)
             arr.push(b[0])

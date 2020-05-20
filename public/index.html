@@ -51,7 +51,7 @@
       while (true) {
         let char = hexStr[i]
         if (char == "\\") {
-          if (hexStr[i + 1] === 'x') {
+          if (hexStr[i + 1] === 'x' || hexStr[i + 1] === 'X') {
             let word = char
             for (let j = 1; j <= 3; j++) {
               i++
