@@ -29,7 +29,7 @@
     function msgpackDecode() {
       let src = $('#src').val()
       console.log("src: ", src)
-      fetch('/msgpack/decode', {
+      fetch('./msgpack/decode', {
         method: 'POST',
         body: JSON.stringify({ src }),
         headers: new Headers({
