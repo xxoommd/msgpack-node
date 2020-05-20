@@ -27,7 +27,7 @@
     msgpackDecode()
 
     function msgpackDecode() {
-      let src = $('#src').val()
+      let src = $('#src').val().trim()
       if (src.length == 0) return
       let dst = decodeHex(src)
       $('#dst').text(JSON.stringify(dst, null, 4))
