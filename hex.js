@@ -23,7 +23,7 @@ const hex = {
                 i++
             }
 
-            if (i >= hexStr.length - 1) break
+            if (i > hexStr.length - 1) break
         }
         return arr
     }

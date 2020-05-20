@@ -29,9 +29,13 @@
     function msgpackDecode() {
       let src = $('#src').val().trim()
       if (src.length == 0) return
-      let dst = decodeHex(src)
-      $('#dst').text(JSON.stringify(dst, null, 4))
-      reloadHighlight()
+      try {
+        let dst = decodeHex(src)
+        $('#dst').text(JSON.stringify(dst, null, 4))
+        reloadHighlight()
+      } catch (err) {
+        $('#dst').text("decode failed: " + err.message)
+      }
     }
 
     function reloadHighlight() {
@@ -47,21 +51,24 @@
       while (true) {
         let char = hexStr[i]
         if (char == "\\") {
+          console.log('--- 0 processing char: ', char)
           let word = char
           for (let j = 1; j <= 3; j++) {
             i++
             word += hexStr[i]
+            console.log('--- 0 processing char: ', hexStr[i])
           }
           word = word.replace('\\x', '0x')
           arr.push(parseInt(word, 16))
           i++
         } else {
+          console.log('--- 1 processing char: ', char)
           let b = encoder.encode(char) // Buffer.from(char)
           arr.push(b[0])
           i++
         }
 
-        if (i >= hexStr.length - 1) break
+        if (i > hexStr.length - 1) break
       }
 
       return msgpack.decode(arr)
