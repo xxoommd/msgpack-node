@@ -3,17 +3,16 @@
 <head>
   <title>Msgpack</title>
   <link rel="stylesheet" href="stylesheets/style.css">
-  <link rel="stylesheet" href="stylesheets/solarized-light.css">
+  <link rel="stylesheet" href="stylesheets/monokai-sublime.css">
 </head>
 
 <body>
   <!-- <h3 style="text-align: center;">Msgpack</h3> -->
   <textarea class="src" id="src"></textarea>
   <button onclick="msgpackDecode()">Msgpack Decode</button>
+  <button onclick="clearMsg()">Clear</button>
   <pre>
-    <code id="dst" class="code json">{
-  "hello": "world"
-}
+    <code id="dst" class="code json">
     </code>
   </pre>
 
@@ -22,32 +21,55 @@
   <script src="javascripts/jquery-3.5.1.min.js"></script>
   <script src="javascripts/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad()</script>
-  <!-- <script src="javascripts/msgpack.min.js"></script>
-  <script src="javascripts/bundle.js"></script> -->
+  <script src="javascripts/msgpack.min.js"></script>
   <script>
     $('#src').val("\\xde\\x00(\\xa2Id\\xce\\x05\\xfe\\xde'\\xa4Name\\xa2yr\\xa3Sex\\x01\\xa5Level\\x10\\xa4Icon\\xce\\x00\\xa7\\xd8\\xc4\\xa6IFrame\\xce\\x00\\x98\\x96\\x81\\xa4Sign\\xc0\\xa3Rmb\\xc0\\xa8GiftCoin\\xc0\\xa4Fame\\x00\\xa3Exp\\x83\\xa2Id\\xce\\x00\\x98\\x96\\x81\\xa6Number\\xcd\\x02\\xd9\\xb0XXX_unrecognized\\xc0\\xa5Money\\x83\\xa2Id\\xce\\x00\\x98\\x96\\x82\\xa6Number\\xcd\\x01\\xf4\\xb0XXX_unrecognized\\xc0\\xa7Diamond\\x83\\xa2Id\\xce\\x00\\x98\\x96\\x83\\xa6Number2\\xb0XXX_unrecognized\\xc0\\xa5State\\x01\\xa4LSId\\xcdN!\\xa4PSId\\xcd\\x03\\xe9\\xa6PSPort\\xc0\\xa4PSIp\\xc0\\xa7Session\\xaa5883113332\\xaaPvpSession\\xc0\\xa7MatCoin\\x83\\xa2Id\\xce\\x00\\x98\\x96\\x86\\xa6Number\\x00\\xb0XXX_unrecognized\\xc0\\xa3Uid\\xa7mine_46\\xa8AllMoney\\x83\\xa2Id\\xce\\x00\\x98\\x96\\x82\\xa6Number\\xcd\\x01\\xf4\\xb0XXX_unrecognized\\xc0\\xaaAllDiamond\\x83\\xa2Id\\xce\\x00\\x98\\x96\\x83\\xa6Number2\\xb0XXX_unrecognized\\xc0\\xa4GMLv\\xc0\\xa3CIp\\xb5110.191.179.147:61694\\xa6Invite\\xc0\\xa5Chose\\xc0\\xabPotencyCoin\\x83\\xa2Id\\xce\\x00\\x98\\x96\\x8e\\xa6Number\\x00\\xb0XXX_unrecognized\\xc0\\xa9GroupCoin\\x83\\xa2Id\\xce\\x00\\x98\\x96\\x8f\\xa6Number\\x00\\xb0XXX_unrecognized\\xc0\\xabTestUserRew\\xc0\\xa7Confirm\\xc0\\xa3Typ\\xc0\\xa7Channel\\xa0\\xa6Stamps\\x83\\xa2Id\\xce\\x00\\x98\\x96\\x80\\xa6Number\\x00\\xb0XXX_unrecognized\\xc0\\xaaFreeStamps\\x83\\xa2Id\\xce\\x01!\\xea\\xc0\\xa6Number\\x00\\xb0XXX_unrecognized\\xc0\\xaaLastUsePID\\xc0\\xa5RName\\xc0\\xa8RnReward\\xc0\\xb0XXX_unrecognized\\xc0")
+    msgpackDecode()
+
     function msgpackDecode() {
       let src = $('#src').val()
-      console.log("src: ", src)
-      fetch('./msgpack/decode', {
-        method: 'POST',
-        body: JSON.stringify({ src }),
-        headers: new Headers({
-          'Content-Type': 'Application/json'
-        })
-      }).then(res => res.json())
-        .catch(err => console.error('Error: ', err))
-        .then(res => {
-          console.log("dst: ", res)
-          $('#dst').text(JSON.stringify(res, null, 4))
-          reloadHighlight()
-        })
+      if (src.length == 0) return
+      let dst = decodeHex(src)
+      $('#dst').text(JSON.stringify(dst, null, 4))
+      reloadHighlight()
     }
 
     function reloadHighlight() {
       document.querySelectorAll('pre code').forEach(block => {
         hljs.highlightBlock(block)
       })
+    }
+
+    function decodeHex(hexStr) {
+      let i = 0
+      let arr = []
+      let encoder = new TextEncoder()
+      while (true) {
+        let char = hexStr[i]
+        if (char == "\\") {
+          let word = char
+          for (let j = 1; j <= 3; j++) {
+            i++
+            word += hexStr[i]
+          }
+          word = word.replace('\\x', '0x')
+          arr.push(parseInt(word, 16))
+          i++
+        } else {
+          let b = encoder.encode(char) // Buffer.from(char)
+          arr.push(b[0])
+          i++
+        }
+
+        if (i >= hexStr.length - 1) break
+      }
+
+      return msgpack.decode(arr)
+    }
+
+    function clearMsg() {
+      $('#src').val('')
+      $('#dst').text('')
     }
   </script>
 </body>
