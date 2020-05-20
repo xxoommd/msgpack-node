@@ -19,16 +19,14 @@ router.all('/decode', (req, res) => {
     input = req.body
   }
 
+  // console.log(JSON.stringify(input))
+
   if (!input || !input.src) {
     res.json({})
     return
   }
 
   res.json(msgDecode(input.src))
-
-  // console.log('--- req.method: ', req.method)
-  // console.log('--- req.query:', req.query)
-  // console.log('--- req.body:', req.body)
 })
 
 module.exports = router;
