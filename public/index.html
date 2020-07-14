@@ -59,30 +59,53 @@
       let i = 0
       let arr = []
       let encoder = new TextEncoder()
+
       while (true) {
         let char = hexStr[i]
         if (char == "\\") {
-          if (hexStr[i + 1] === 'x' || hexStr[i + 1] === 'X') {
-            let word = char
-            for (let j = 1; j <= 3; j++) {
+          let nextStr = hexStr[i + 1]
+          switch (nextStr) {
+            case 'x':
+              let word = char
+              for (let j = 1; j <= 3; j++) {
+                i++
+                word += hexStr[i]
+              }
+              word = word.replace('\\x', '0x')
+              arr.push(parseInt(word, 16))
               i++
-              word += hexStr[i]
-            }
-            word = word.replace('\\x', '0x')
-            arr.push(parseInt(word, 16))
-            i++
-          } else if (hexStr[i + 1] === 't') {
-            arr.push(0x09)
-            i += 2
-          } else if (hexStr[i + 1] === 'n') {
-            arr.push(0x0a)
-            i += 2
-          } else {
-            char = hexStr[i + 1]
-            let b = encoder.encode(char) // Buffer.from(char)
-            arr.push(b[0])
-            i += 2
+              break;
+
+            case 'a':
+              arr.push(0x07)
+              i += 2
+              break
+            case 'b':
+              arr.push(0x08)
+              i += 2
+              break
+            case 'n':
+              arr.push(0x0a)
+              i += 2
+              break
+            case 't':
+              arr.push(0x09)
+              i += 2
+              break
+            case 'r':
+              arr.push(0x0d)
+              i += 2
+              break
+
+
+            default:
+              char = hexStr[i + 1]
+              let b = encoder.encode(char) // Buffer.from(char)
+              arr.push(b[0])
+              i += 2
+              break;
           }
+          
         } else {
           let b = encoder.encode(char) // Buffer.from(char)
           arr.push(b[0])
